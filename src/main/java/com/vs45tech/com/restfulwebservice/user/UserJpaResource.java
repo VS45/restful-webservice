@@ -3,6 +3,8 @@ package com.vs45tech.com.restfulwebservice.user;
 import java.net.URI;
 //import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.vs45tech.com.restfulwebservice.post.Post;
+import com.vs45tech.com.restfulwebservice.post.PostRepository;
 import com.vs45tech.com.restfulwebservice.user.jpa.UserRepository;
 
 import jakarta.validation.Valid;
@@ -26,6 +30,8 @@ public class UserJpaResource {
     @Autowired
     private UserRepository userRepository;
     
+    @Autowired
+    private PostRepository postRepository;
     @GetMapping("/jpa/users")
     public List<User> retrieveAllUsers() {
         return userRepository.findAll();
@@ -57,4 +63,23 @@ public class UserJpaResource {
         }
         userRepository.deleteById(id);
     }
+    @GetMapping("/jpa/users/{id}/posts")
+    public List<Post> getUserPosts(@PathVariable int id) {
+        Optional<User> user=userRepository.findById(id);
+        if(user==null){
+            throw new UserNotFoundException("Could not delete, User not found for id: "+id);
+        }
+        return user.get().getPosts();
+}   
+@PostMapping("/jpa/users/{id}/posts")
+public ResponseEntity<Post> createUserPost(@PathVariable int id,   @Valid @RequestBody Post post) {
+    Optional<User> user=userRepository.findById(id);
+    if(user==null){
+        throw new UserNotFoundException("Could not delete, User not found for id: "+id);
+    }
+    post.setUser(user.get());
+ Post savedPost=   postRepository.save(post);
+ URI location=ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(savedPost.getId()).toUri();
+        return ResponseEntity.created(location).build();
 }
+}  
