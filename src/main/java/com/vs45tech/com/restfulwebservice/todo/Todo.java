@@ -4,31 +4,32 @@ import java.time.LocalDate;
 
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Entity;
 import jakarta.validation.constraints.Size;
 
+@Entity 
 public class Todo {
     @Id
     @GeneratedValue
-    private int id;
+    private Integer id;
     private String username;
     @Size(min = 10,message = "Enter atleast 10 Characters")
     private String description;
     private LocalDate targetDate;
     private boolean done;
 public Todo(){}
-    public Todo(int id, String username, String description, LocalDate targetDate, boolean done) {
+    public Todo(Integer id, String username, String description, LocalDate targetDate, boolean done) {
         this.id = id;
         this.username = username;
         this.description = description;
         this.targetDate = targetDate;
         this.done = done;
     }
-
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
